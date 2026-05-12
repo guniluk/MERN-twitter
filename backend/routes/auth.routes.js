@@ -4,10 +4,13 @@ import {
   signupController,
   loginController,
   logoutController,
+  getMeController,
 } from '../controllers/auth.controller.js';
+import { protectRoute } from '../middleware/protectRoute.js';
 
+router.get('/me', protectRoute, getMeController);
 router.post('/signup', signupController);
 router.post('/login', loginController);
-router.get('/logout', logoutController);
+router.post('/logout', logoutController);
 
 export default router;

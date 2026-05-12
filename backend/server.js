@@ -1,7 +1,12 @@
 ///express///
 import express from 'express';
 export const app = express();
-app.use(express.json());
+app.use(express.json()); //parse req
+app.use(express.urlencoded({ extended: true })); //parse form data
+
+///cookie-parser///
+import cookieParser from 'cookie-parser';
+app.use(cookieParser());
 
 ///cors///
 import cors from 'cors';

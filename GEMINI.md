@@ -65,5 +65,3 @@ npm run dev
 - **MVC Pattern:** Backend는 `models`, `controllers`, `routes` 폴더 구조를 따릅니다.
 - **Linting:** Frontend는 ESLint를 사용하여 코드 품질을 관리합니다.
 
-## 주의 사항
-- `backend/server.js`에서 `auth.routes.js` 임포트 시 경로 확인이 필요합니다 (현재 `./auth.routes.js`로 되어 있으나 파일은 `routes/` 폴더 내에 존재할 수 있음).
