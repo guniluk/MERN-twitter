@@ -32,6 +32,8 @@ import userRoutes from './routes/user.routes.js';
 app.use('/api/users', userRoutes);
 import postRoutes from './routes/post.routes.js';
 app.use('/api/posts', postRoutes);
+import notificationRoutes from './routes/notification.routes.js';
+app.use('/api/notification', notificationRoutes);
 
 ///db connect & server start///
 import connectMongoDB from './db/connectMongoDB.js';
