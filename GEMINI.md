@@ -5,22 +5,52 @@
 ## 프로젝트 구조
 
 - `backend/`: Node.js 및 Express 서버와 MongoDB 연동 로직이 포함되어 있습니다.
+    - `controllers/`: 각 라우트의 비즈니스 로직을 처리합니다.
+    - `models/`: MongoDB 데이터 스키마 정의 (User, Notification).
+    - `routes/`: API 엔드포인트를 정의합니다.
+    - `middleware/`: 요청 보호를 위한 인증 미들웨어가 포함되어 있습니다.
 - `frontend/`: React 및 Vite를 사용한 클라이언트 애플리케이션입니다.
 
 ## 기술 스택
 
 ### Backend
-- **Framework:** Express.js
-- **Database:** MongoDB (via Mongoose)
+- **Framework:** Express.js 5.2.1
+- **Database:** MongoDB (via Mongoose 9.6.2)
 - **Authentication:** JWT (jsonwebtoken), bcryptjs
 - **Storage:** Cloudinary (이미지 업로드)
 - **Middleware:** cookie-parser, cors, dotenv
 - **Dev Tool:** nodemon
 
 ### Frontend
-- **Framework:** React (Vite)
+- **Framework:** React 19 (Vite 8.0.10)
 - **Language:** JavaScript (ES Modules)
 - **Styling:** Vanilla CSS (예정)
+
+## API 엔드포인트
+
+### Auth Routes (`/api/auth`)
+- `GET /me`: 현재 로그인된 사용자 정보 확인 (Protected)
+- `POST /signup`: 회원가입
+- `POST /login`: 로그인
+- `POST /logout`: 로그아웃
+
+### User Routes (`/api/users`)
+- `GET /profile/:username`: 특정 사용자 프로필 정보 조회 (Protected)
+- `GET /suggested`: 추천 사용자 목록 조회 (Protected)
+- `POST /follow/:id`: 사용자 팔로우/언팔로우 (Protected)
+- `POST /update`: 사용자 정보 업데이트 (Protected)
+
+## 데이터 모델
+
+### User Model
+- `username`, `fullname`, `email`, `password` (기본 정보)
+- `followers`, `following` (팔로우 관계)
+- `profileImg`, `coverImg`, `bio`, `link` (프로필 세부 정보)
+
+### Notification Model
+- `from`, `to` (관련 사용자)
+- `type`: 'follow', 'like'
+- `read`: 읽음 여부
 
 ## 시작하기
 
@@ -38,7 +68,7 @@ CLOUDINARY_API_SECRET=your_api_secret
 
 ### 설치 및 실행
 
-#### Backend
+#### Root (Backend)
 ```bash
 # 의존성 설치
 npm install

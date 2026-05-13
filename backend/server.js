@@ -30,6 +30,8 @@ import authRoutes from './routes/auth.routes.js';
 app.use('/api/auth', authRoutes);
 import userRoutes from './routes/user.routes.js';
 app.use('/api/users', userRoutes);
+import postRoutes from './routes/post.routes.js';
+app.use('/api/posts', postRoutes);
 
 ///db connect & server start///
 import connectMongoDB from './db/connectMongoDB.js';
