@@ -1,4 +1,21 @@
-body {
-  margin: 0;
-  padding: 0;
+@import "tailwindcss";
+@plugin "daisyui" {
+  themes: black --default, light, dark;
+}
+
+/* Black 테마 커스터마이징 */
+@plugin "daisyui/theme" {
+  name: "black";
+  --color-primary: oklch(85% 0.12 235);           /* 연한 파란색 */
+  --color-primary-content: oklch(20% 0.05 235);   /* Primary 위 글자색 (어두운 파랑/검정 계열) */
+  
+  --color-secondary: oklch(88% 0.01 0);            /* 연한 회색 */
+  --color-secondary-content: oklch(20% 0.01 0);   /* Secondary 위 글자색 (어두운 회색/검정 계열) */
+}
+
+/* Dark 테마 (기존 설정 유지) */
+@plugin "daisyui/theme" {
+  name: "dark";
+  --color-primary: oklch(65.69% 0.196 275.75);
+  --color-secondary: oklch(74.8% 0.26 342.55);
 }

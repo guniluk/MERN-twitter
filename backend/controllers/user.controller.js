@@ -1,4 +1,5 @@
 import User from '../models/user.model.js';
+import Post from '../models/post.model.js';
 import Notification from '../models/notification.model.js';
 import bcrypt from 'bcryptjs';
 import { v2 as cloudinary } from 'cloudinary';
@@ -6,7 +7,12 @@ import { v2 as cloudinary } from 'cloudinary';
 export const getUserProfile = async (req, res) => {
   try {
     const { username } = req.params;
-    const user = await User.findOne({ username }).select('-password');
+    const user = await User.findOne({ username })
+      .select('-password')
+      .populate({
+        path: 'following',
+        select: 'username profileImg email',
+      });
     if (!user) {
       return res.status(404).json({
         success: false,
@@ -221,6 +227,74 @@ export const updateUser = async (req, res) => {
     return res.status(200).json(user);
   } catch (error) {
     console.log('Error in updateUserProfile:', error.message);
+    res.status(500).json({
+      success: false,
+      message: 'Internal server error',
+    });
+  }
+};
+
+export const deleteUser = async (req, res) => {
+  try {
+    const userId = req.user._id;
+    const user = await User.findById(userId);
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        message: 'User not found',
+      });
+    }
+
+    // 1. Delete user images from Cloudinary
+    if (user.profileImg) {
+      const profileImgId = user.profileImg.split('/').pop().split('.')[0];
+      await cloudinary.uploader.destroy(profileImgId);
+    }
+    if (user.coverImg) {
+      const coverImgId = user.coverImg.split('/').pop().split('.')[0];
+      await cloudinary.uploader.destroy(coverImgId);
+    }
+
+    // 2. Delete all posts by the user and their images
+    const posts = await Post.find({ user: userId });
+    const postIds = posts.map((post) => post._id);
+
+    for (const post of posts) {
+      if (post.img) {
+        const imgId = post.img.split('/').pop().split('.')[0];
+        await cloudinary.uploader.destroy(imgId);
+      }
+    }
+    await Post.deleteMany({ user: userId });
+
+    // 2-1. Remove deleted posts from other users' likedPosts
+    await User.updateMany(
+      { likedPosts: { $in: postIds } },
+      { $pull: { likedPosts: { $in: postIds } } }
+    );
+
+    // 3. Remove user from others' following/followers lists
+    await User.updateMany(
+      { $or: [{ followers: userId }, { following: userId }] },
+      { $pull: { followers: userId, following: userId } }
+    );
+
+    // 4. Remove all likes by this user
+    await Post.updateMany(
+      { likes: userId },
+      { $pull: { likes: userId } }
+    );
+
+    // 5. Delete the user
+    await User.findByIdAndDelete(userId);
+    res.cookie('jwt', '', { maxAge: 0 }); // Clear cookie
+
+    res.status(200).json({
+      success: true,
+      message: 'User deleted successfully',
+    });
+  } catch (error) {
+    console.log('Error in deleteUser:', error.message);
     res.status(500).json({
       success: false,
       message: 'Internal server error',
