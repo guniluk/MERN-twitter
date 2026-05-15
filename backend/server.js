@@ -1,8 +1,8 @@
 ///express///
 import express from 'express';
 export const app = express();
-app.use(express.json({ limit: "5mb" })); //parse req
-app.use(express.urlencoded({ extended: true, limit: "5mb" })); //parse form data
+app.use(express.json({ limit: '5mb' })); //parse req
+app.use(express.urlencoded({ extended: true, limit: '5mb' })); //parse form data
 
 ///cookie-parser///
 import cookieParser from 'cookie-parser';

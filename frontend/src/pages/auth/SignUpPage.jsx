@@ -1,4 +1,4 @@
-import { Link, useNavigate } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import { useState } from 'react';
 
 import XSvg from '../../components/svgs/X';
@@ -15,7 +15,6 @@ const SignUpPage = () => {
     fullname: '',
     password: '',
   });
-  const navigate = useNavigate();
 
   const [isError, setIsError] = useState(false);
   const [errorMsg, setErrorMsg] = useState('');

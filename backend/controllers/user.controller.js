@@ -7,12 +7,10 @@ import { v2 as cloudinary } from 'cloudinary';
 export const getUserProfile = async (req, res) => {
   try {
     const { username } = req.params;
-    const user = await User.findOne({ username })
-      .select('-password')
-      .populate({
-        path: 'following',
-        select: 'username profileImg email',
-      });
+    const user = await User.findOne({ username }).select('-password').populate({
+      path: 'following',
+      select: 'username profileImg email',
+    });
     if (!user) {
       return res.status(404).json({
         success: false,
@@ -56,16 +54,6 @@ export const followUnfollowUser = async (req, res) => {
       await User.findByIdAndUpdate(id, { $pull: { followers: req.user._id } });
       await User.findByIdAndUpdate(req.user._id, { $pull: { following: id } });
 
-      ///send notification
-      // const newNofitication = new Notification({
-      //   from: req.user._id,
-      //   to: id,
-      //   type: 'follow',
-      // });
-      // await newNofitication.save();
-
-      //return the id of the user as a response
-
       res.status(200).json({
         success: true,
         message: 'User unfollowed successfully',
@@ -83,7 +71,6 @@ export const followUnfollowUser = async (req, res) => {
       await newNofitication.save();
 
       //return the id of the user as a response
-
       res.status(200).json({
         success: true,
         message: 'User followed successfully',
@@ -270,20 +257,17 @@ export const deleteUser = async (req, res) => {
     // 2-1. Remove deleted posts from other users' likedPosts
     await User.updateMany(
       { likedPosts: { $in: postIds } },
-      { $pull: { likedPosts: { $in: postIds } } }
+      { $pull: { likedPosts: { $in: postIds } } },
     );
 
     // 3. Remove user from others' following/followers lists
     await User.updateMany(
       { $or: [{ followers: userId }, { following: userId }] },
-      { $pull: { followers: userId, following: userId } }
+      { $pull: { followers: userId, following: userId } },
     );
 
     // 4. Remove all likes by this user
-    await Post.updateMany(
-      { likes: userId },
-      { $pull: { likes: userId } }
-    );
+    await Post.updateMany({ likes: userId }, { $pull: { likes: userId } });
 
     // 5. Delete the user
     await User.findByIdAndDelete(userId);

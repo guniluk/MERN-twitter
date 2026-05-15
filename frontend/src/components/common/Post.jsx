@@ -3,81 +3,83 @@ import { FaRegHeart } from 'react-icons/fa';
 import { FaTrash } from 'react-icons/fa';
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { toast } from 'react-hot-toast';
 
 const Post = ({ post }) => {
   const [comment, setComment] = useState('');
-  const [isLiking, setIsLiking] = useState(false);
-  const [isDeleting, setIsDeleting] = useState(false);
   const [isCommenting, setIsCommenting] = useState(false);
-
+  const queryClient = useQueryClient();
   const authUser = JSON.parse(localStorage.getItem('authUser'));
+
+  const { mutate: deletePost, isPending: isDeleting } = useMutation({
+    mutationFn: async () => {
+      const res = await fetch(`/api/posts/${post._id}`, { method: 'DELETE' });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.message || 'Something went wrong');
+      return data;
+    },
+    onSuccess: () => {
+      toast.success('Post deleted successfully');
+      queryClient.invalidateQueries({ queryKey: ['posts'] });
+    },
+  });
+
+  const { mutate: likePost, isPending: isLiking } = useMutation({
+    mutationFn: async () => {
+      const res = await fetch(`/api/posts/like/${post._id}`, { method: 'POST' });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.message || 'Something went wrong');
+      return data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['posts'] });
+    },
+  });
+
+  const { mutate: commentPost } = useMutation({
+    mutationFn: async () => {
+      const res = await fetch(`/api/posts/comment/${post._id}`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ text: comment }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.message || 'Something went wrong');
+      return data;
+    },
+    onSuccess: () => {
+      toast.success('Comment added');
+      setComment('');
+      queryClient.invalidateQueries({ queryKey: ['posts'] });
+      document.getElementById('comments_modal' + post._id).close();
+    },
+  });
 
   const postOwner = post.user;
   if (!postOwner) return null;
   const isLiked = authUser ? post.likes.includes(authUser._id) : false;
   const isMyPost = authUser ? authUser._id === post.user?._id : false;
 
-  const handleDeletePost = async () => {
-    if (!authUser) return alert('Please login to delete a post');
+  const formattedDate = new Date(post.createdAt).toLocaleString('ko-KR', {
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit',
+    hour: '2-digit',
+    minute: '2-digit',
+  }).replace(/\. /g, '-').replace('.', '');
+
+  const handleDeletePost = () => {
     if (!window.confirm('Are you sure you want to delete this post?')) return;
-    setIsDeleting(true);
-    try {
-      const res = await fetch(`/api/posts/${post._id}`, {
-        method: 'DELETE',
-      });
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.message || 'Something went wrong');
-      console.log('Post deleted');
-      window.location.reload();
-    } catch (error) {
-      console.log(error);
-    } finally {
-      setIsDeleting(false);
-    }
+    deletePost();
   };
 
-  const handlePostComment = async (e) => {
+  const handlePostComment = (e) => {
     e.preventDefault();
-    if (!authUser) return alert('Please login to comment');
     if (isCommenting) return;
     setIsCommenting(true);
-    try {
-      const res = await fetch(`/api/posts/comment/${post._id}`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ text: comment }),
-      });
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.message || 'Something went wrong');
-      setComment('');
-      console.log('Comment added');
-      window.location.reload();
-    } catch (error) {
-      console.log(error);
-    } finally {
-      setIsCommenting(false);
-    }
-  };
-
-  const handleLikePost = async () => {
-    if (!authUser) return alert('Please login to like a post');
-    if (isLiking) return;
-    setIsLiking(true);
-    try {
-      const res = await fetch(`/api/posts/like/${post._id}`, {
-        method: 'POST',
-      });
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.message || 'Something went wrong');
-      console.log('Like toggled');
-      window.location.reload();
-    } catch (error) {
-      console.log(error);
-    } finally {
-      setIsLiking(false);
-    }
+    commentPost();
+    setIsCommenting(false);
   };
 
   return (
@@ -100,7 +102,7 @@ const Post = ({ post }) => {
               @{postOwner.username}
             </Link>
             <span>·</span>
-            <span>{post.createdAt}</span>
+            <span>{formattedDate}</span>
           </span>
           {isMyPost && (
             <span className="flex justify-end flex-1">
@@ -205,7 +207,7 @@ const Post = ({ post }) => {
           {/* LIKE */}
           <div
             className="flex gap-2 items-center group cursor-pointer"
-            onClick={handleLikePost}
+            onClick={likePost}
           >
             {!isLiked && !isLiking && (
               <FaRegHeart className="w-5 h-5 cursor-pointer text-slate-500 group-hover:text-pink-500" />

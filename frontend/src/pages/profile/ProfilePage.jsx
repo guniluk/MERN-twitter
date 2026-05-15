@@ -13,6 +13,7 @@ const ProfilePage = () => {
   const [coverImg, setCoverImg] = useState(null);
   const [feedType, setFeedType] = useState('posts');
   const [isFollowing, setIsFollowing] = useState(false);
+  const [amIFollowing, setAmIFollowing] = useState(false);
   const [isDeletingUser, setIsDeletingUser] = useState(false);
   const { username } = useParams();
   const navigate = useNavigate();
@@ -25,7 +26,6 @@ const ProfilePage = () => {
 
   const authUser = JSON.parse(localStorage.getItem('authUser'));
   const isMyProfile = authUser?.username === username;
-  const amIFollowing = authUser?.following.includes(user?._id);
 
   const fetchUserProfile = async () => {
     setIsLoading(true);
@@ -34,6 +34,7 @@ const ProfilePage = () => {
       const data = await res.json();
       if (!res.ok) throw new Error(data.message || 'Something went wrong');
       setUser(data);
+      setAmIFollowing(authUser?.following.includes(data._id));
     } catch (error) {
       console.log(error);
     } finally {
@@ -47,6 +48,14 @@ const ProfilePage = () => {
     };
     fetchUser();
   }, [username]);
+
+  const getTabClass = (type) => {
+    const baseClass =
+      'flex justify-center flex-1 p-3 transition duration-300 cursor-pointer relative';
+    const activeClass = 'text-yellow-400 font-bold';
+    const inactiveClass = 'text-slate-500 hover:bg-secondary';
+    return `${baseClass} ${feedType === type ? activeClass : inactiveClass}`;
+  };
 
   const handleImgChange = (e, state) => {
     const file = e.target.files[0];
@@ -94,18 +103,8 @@ const ProfilePage = () => {
       const data = await res.json();
       if (!res.ok) throw new Error(data.message || 'Something went wrong');
 
-      // Update localStorage authUser
-      const updatedAuthUser = { ...authUser };
-      if (amIFollowing) {
-        updatedAuthUser.following = updatedAuthUser.following.filter(
-          (id) => id !== user?._id,
-        );
-      } else {
-        updatedAuthUser.following.push(user?._id);
-      }
-      localStorage.setItem('authUser', JSON.stringify(updatedAuthUser));
+      setAmIFollowing(!amIFollowing);
 
-      // Update local user state to reflect follower count change
       const updatedUser = { ...user };
       if (amIFollowing) {
         updatedUser.followers = updatedUser.followers.filter(
@@ -115,6 +114,16 @@ const ProfilePage = () => {
         updatedUser.followers.push(authUser._id);
       }
       setUser(updatedUser);
+
+      const updatedAuthUser = { ...authUser };
+      if (amIFollowing) {
+        updatedAuthUser.following = updatedAuthUser.following.filter(
+          (id) => id !== user?._id,
+        );
+      } else {
+        updatedAuthUser.following.push(user?._id);
+      }
+      localStorage.setItem('authUser', JSON.stringify(updatedAuthUser));
     } catch (error) {
       alert(error.message);
     } finally {
@@ -315,30 +324,30 @@ const ProfilePage = () => {
             </div>
             <div className="flex w-full border-b border-gray-700 mt-4">
               <div
-                className="flex justify-center flex-1 p-3 hover:bg-secondary transition duration-300 cursor-pointer relative"
+                className={getTabClass('posts')}
                 onClick={() => setFeedType('posts')}
               >
-                Posts
+                My Posts
                 {feedType === 'posts' && (
-                  <div className="absolute bottom-0 w-10 h-1 rounded-full bg-primary"></div>
+                  <div className="absolute bottom-0 w-20 h-1 rounded-full bg-yellow-400"></div>
                 )}
               </div>
               <div
-                className="flex justify-center flex-1 p-3 text-slate-500 hover:bg-secondary transition duration-300 cursor-pointer relative"
+                className={getTabClass('likes')}
                 onClick={() => setFeedType('likes')}
               >
-                Likes
+                Post I like
                 {feedType === 'likes' && (
-                  <div className="absolute bottom-0 w-10 h-1 rounded-full bg-primary"></div>
+                  <div className="absolute bottom-0 w-24 h-1 rounded-full bg-yellow-400"></div>
                 )}
               </div>
               <div
-                className="flex justify-center flex-1 p-3 text-slate-500 hover:bg-secondary transition duration-300 cursor-pointer relative"
+                className={getTabClass('following')}
                 onClick={() => setFeedType('following')}
               >
-                Following
+                Following User
                 {feedType === 'following' && (
-                  <div className="absolute bottom-0 w-10 h-1 rounded-full bg-primary"></div>
+                  <div className="absolute bottom-0 w-28 h-1 rounded-full bg-yellow-400"></div>
                 )}
               </div>
             </div>

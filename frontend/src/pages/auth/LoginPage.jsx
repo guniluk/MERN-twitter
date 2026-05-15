@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 
 import XSvg from '../../components/svgs/X';
 
@@ -11,7 +11,6 @@ const LoginPage = () => {
     username: '',
     password: '',
   });
-  const navigate = useNavigate();
 
   const [isError, setIsError] = useState(false);
   const [errorMsg, setErrorMsg] = useState('');

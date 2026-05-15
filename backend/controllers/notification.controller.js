@@ -2,15 +2,23 @@ import Notification from '../models/notification.model.js';
 
 export const getAllNotifications = async (req, res) => {
   try {
+    // 1. 읽은 알림(read: true)은 삭제합니다.
+    await Notification.deleteMany({ to: req.user._id, read: true });
+
+    // 2. 읽지 않은 알림(read: false)만 가져옵니다.
     let notifications = await Notification.find({
       to: req.user._id,
+      read: false,
     })
       .sort({ createdAt: -1 })
       .populate({
         path: 'from',
         select: 'username profileImg',
       });
-    await Notification.updateMany({ to: req.user._id }, { read: true });
+
+    // 알림을 조회했으므로 읽음 처리
+    await Notification.updateMany({ to: req.user._id, read: false }, { read: true });
+
     res.status(200).json(notifications);
   } catch (error) {
     console.log('Error in getAllNotifications:', error.message);

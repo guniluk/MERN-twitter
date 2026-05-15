@@ -6,10 +6,12 @@
 
 - `backend/`: Node.js 및 Express 서버와 MongoDB 연동 로직이 포함되어 있습니다.
     - `controllers/`: 각 라우트의 비즈니스 로직을 처리합니다.
-    - `models/`: MongoDB 데이터 스키마 정의 (User, Notification).
+    - `models/`: MongoDB 데이터 스키마 정의 (User, Notification, Post).
     - `routes/`: API 엔드포인트를 정의합니다.
     - `middleware/`: 요청 보호를 위한 인증 미들웨어가 포함되어 있습니다.
 - `frontend/`: React 및 Vite를 사용한 클라이언트 애플리케이션입니다.
+    - `src/components/`: 공통 UI 요소 (Header, Post 등) 및 SVG 아이콘 관리.
+    - `src/pages/`: 라우팅된 주요 페이지 (Auth, Home, Profile).
 
 ## 기술 스택
 
@@ -24,7 +26,11 @@
 ### Frontend
 - **Framework:** React 19 (Vite 8.0.10)
 - **Language:** JavaScript (ES Modules)
-- **Styling:** Vanilla CSS (예정)
+- **Styling:** Vanilla CSS
+- **Features:**
+    - 반응형 레이아웃 및 사용자 정의 컴포넌트 구조.
+    - API 요청 처리를 위한 상태 관리 및 라우팅.
+    - 인증 처리 및 사용자 프로필 관리.
 
 ## API 엔드포인트
 
@@ -51,6 +57,13 @@
 - `from`, `to` (관련 사용자)
 - `type`: 'follow', 'like'
 - `read`: 읽음 여부
+
+### Post Model
+- `user` (작성자)
+- `text` (게시물 내용)
+- `img` (게시물 이미지)
+- `likes` (좋아요 누른 사용자 목록)
+- `comments` (댓글 목록)
 
 ## 시작하기
 
