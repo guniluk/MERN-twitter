@@ -40,7 +40,7 @@ const SuggestedUsers = () => {
 
 	return (
 		<div className='bg-gray-900 p-4 rounded-lg m-4'>
-			<h2 className='text-xl font-bold mb-4 text-white'>Suggested Users</h2>
+			<h2 className='text-xl font-bold mb-4 text-white'>Who to follow</h2>
 			{users.length === 0 ? (
 				<p className='text-gray-500'>No suggestions found.</p>
 			) : (

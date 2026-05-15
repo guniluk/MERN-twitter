@@ -17,7 +17,12 @@ export const getUserProfile = async (req, res) => {
         message: 'User not found',
       });
     }
-    res.status(200).json(user);
+
+    const postCount = await Post.countDocuments({ user: user._id });
+    const userWithPostCount = user.toObject();
+    userWithPostCount.postCount = postCount;
+
+    res.status(200).json(userWithPostCount);
   } catch (error) {
     console.log('Error in getUserProfile:', error.message);
     res.status(500).json({

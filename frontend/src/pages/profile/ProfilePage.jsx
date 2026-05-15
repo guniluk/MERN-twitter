@@ -151,7 +151,7 @@ const ProfilePage = () => {
   };
 
   return (
-    <div className="flex-[4_4_0]  border-r border-gray-700 min-h-screen ">
+    <div className="w-full min-h-screen ">
       {/* HEADER */}
       {isLoading && (
         <div className="flex flex-col justify-center">
@@ -170,7 +170,9 @@ const ProfilePage = () => {
               </Link>
               <div className="flex flex-col">
                 <p className="font-bold text-lg">{user?.fullname}</p>
-                <span className="text-sm text-slate-500">0 posts</span>
+                <span className="text-sm text-slate-500">
+                  {user?.postCount || 0} posts
+                </span>
               </div>
             </div>
             {/* COVER IMG */}
